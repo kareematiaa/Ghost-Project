@@ -11,5 +11,6 @@ namespace Domain.IRepositories.IDataRepository
     {
         Task<ShippingCost> GetByMethodAndGovernateAsync(Guid shippingMethodId, string governate);
         Task<IEnumerable<ShippingCost>> GetAllAsync();
+        Task<List<ShippingCost>> GetAllShippingCostsAsync();
     }
 }

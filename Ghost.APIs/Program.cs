@@ -1,6 +1,7 @@
 using Application.Extentions;
 using Application.IService;
 using Application.Services;
+using Domain.External;
 using Domain.IRepositories.IDataRepository;
 using Domain.IRepositories.IExternalRepository;
 using Domain.Users;
@@ -8,8 +9,11 @@ using Infrastructure.Context;
 using Infrastructure.Context.Users;
 using Infrastructure.Repositories.DataRepository;
 using Infrastructure.Repositories.ExternalRepository;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,8 +71,34 @@ builder.Services.AddScoped<IAdminDataRepository, AdminDataRepository>();
 builder.Services.AddScoped<IAdminDataService, AdminDataService>();
 builder.Services.AddScoped<IExternalRepository, ExternalRepository>();
 builder.Services.AddScoped<IExternalService, ExternalService>();
-
+builder.Services.AddScoped<IOtpRepository, OtpRepository>();
+builder.Services.AddScoped<IOtpService, OtpService>();
+builder.Services.AddMemoryCache();
 builder.Services.AddAutoMapper(typeof(MapperConfig));
+
+
+var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
+
+})
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            // Add this to map the user ID to the "uid" claim
+            NameClaimType = "uid" // Or whatever claim you use for user ID
+        };
+    });
 
 #endregion
 
@@ -79,6 +109,7 @@ var app = builder.Build();
 //{
 //    app.MapOpenApi();
 //}
+app.UseCors("openAll");
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseStaticFiles();

@@ -25,9 +25,11 @@ namespace Application.Extentions
 
 
             CreateMap<ProductVariant, ProductVariantDto>()
-                .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.ProductColor.Name))
-                .ForMember(dest => dest.SizeName, opt => opt.MapFrom(src => src.ProductSize.Size))
+                .ForMember(dest => dest.ColorName, opt => opt.MapFrom(src => src.ProductColor.Name))            
                 .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImages));
+
+            CreateMap<ProductVariantSize, SizeDto>()
+                    .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Size.Name));
 
             CreateMap<ProductImage, ProductImageDto>();
 
@@ -55,12 +57,15 @@ namespace Application.Extentions
             #region Cart
 
             CreateMap<CartItem, CartItemDto>()
-             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductVariant.Product.Name))
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.CartId))
-             .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.ProductVariant.ProductColor.Name))
-             .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.ProductVariant.Product.Price))
-             .ForMember(dest => dest.Size, opt => opt.MapFrom(src => src.ProductVariant.ProductSize.Size))
-             .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ProductVariant.ProductImages.FirstOrDefault().URL));
+               .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductVariant.Product.Id))
+               .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.ProductVariant.Product.Name))
+               .ForMember(dest => dest.Color, opt => opt.MapFrom(src => src.ProductVariant.ProductColor.Name))
+              .ForMember(dest => dest.SizeName, opt => opt.MapFrom(src => src.Size != null ? src.Size.Name : "Unknown")) // Handle null case
+               .ForMember(dest => dest.SizeId, opt => opt.MapFrom(src => src.SizeId))
+               .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.ProductVariant.Product.Price))
+               .ForMember(dest => dest.AvailableStock, opt => opt.MapFrom(src => src.ProductVariant.Quantity))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ProductVariant.ProductImages.FirstOrDefault().URL)) // Get the first image URL
+                .ReverseMap();
 
             #endregion
 
@@ -96,7 +101,11 @@ namespace Application.Extentions
 
             #endregion
 
-
+            #region Shipping
+            CreateMap<ShippingCost, ShippingOptionDto>()
+           .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.ShippingMethod.Name))
+           .ForMember(dest => dest.EstimatedDelivery, opt => opt.MapFrom(src => src.ShippingMethod.EstimatedDelivery));
+            #endregion
 
         }
 

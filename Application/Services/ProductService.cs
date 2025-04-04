@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.IService;
 using AutoMapper;
+using Domain.Exceptions;
 using Domain.IRepositories.IDataRepository;
 using Domain.Utilities;
 using System;
@@ -34,9 +35,10 @@ namespace Application.Services
             return _mapper.Map<List<ProductCardDto>>(pagedResult);
         }
 
-        public async Task<ProductDetailsDto> GetProductDetailsAsync(Guid productId)
+        public async Task<ProductDetailsDto?> GetProductDetailsAsync(Guid productId)
         {
-            var product = await _repository.ProductRepository.GetProductDetailsAsync(productId);
+            var product = await _repository.ProductRepository.GetProductDetailsAsync(productId) ?? throw new NotFoundException("product");
+           
             return _mapper.Map<ProductDetailsDto>(product);
         }
 

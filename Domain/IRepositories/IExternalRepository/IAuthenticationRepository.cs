@@ -14,8 +14,8 @@ namespace Domain.IRepositories.IExternalRepository
         Task<(string, IAppUser)> Login(string email, string password);
  
         Task Remove(string id);
-        Task<string> CustomerRegister(string fullName, string email,
-                string phone,  DateTime birthDate, bool gender, string password);
+        Task<object> CustomerRegister(string fullName, string email,
+                string phone, string password);
 
         Task ChangePassword(string userId, string oldPassword, string newPassword);
         Task RestPassword(string token, string email, string newPassword);

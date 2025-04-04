@@ -29,7 +29,6 @@ namespace Infrastructure.Repositories.DataRepository
                         .ThenInclude(pv => pv.ProductColor)
                 .Include(o => o.OrderItems)
                     .ThenInclude(oi => oi.ProductVariant)
-                        .ThenInclude(pv => pv.ProductSize)
                 .Include(o => o.CustomerAddress)
                 .Include(o => o.ShippingCost)
                 .Include(o => o.PaymentMethod)

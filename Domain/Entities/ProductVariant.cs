@@ -15,8 +15,8 @@ namespace Domain.Entities
         public int Quantity { get; set; }
         public Guid ColorId { get; set; } 
         public ProductColor ProductColor { get; set; } = null!;
-        public Guid SizeId { get; set; }
-        public ProductSize ProductSize { get; set; } = null!;
+        // Size relationships (many sizes available for this variant)
+        public ICollection<ProductVariantSize> AvailableSizes { get; set; } = new List<ProductVariantSize>();
         public bool IsDeleted { get; set; }
         public ICollection<CartItem> CartItems { get; set; } = null!;
         public ICollection<ProductImage> ProductImages { get; set; } = null!;

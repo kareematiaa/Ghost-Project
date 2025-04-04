@@ -1,4 +1,5 @@
 ﻿using Application.DTOs.AuthDTOs;
+using Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace Application.IService
 {
     public interface IOtpService
     {
-        Task<OtpTokenDto> GenerateOtp(string email, string? token = null);
-        Task<string> ValidateOtp(string userOtp, string tokenOtp);
+        Task<string> GenerateAndSendOtp(string email, string purpose);
+        Task<OtpValidationResult> ValidateOtp(string email, string code);
     }
 }

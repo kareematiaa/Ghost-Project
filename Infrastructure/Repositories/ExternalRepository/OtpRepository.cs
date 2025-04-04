@@ -1,58 +1,65 @@
-﻿using Domain.Exceptions;
+﻿using Domain.Enums;
 using Domain.External;
-using Microsoft.IdentityModel.Tokens;
-using Persistence.ExternalConfiguration;
-using AppUtility = Domain.Utilities.ClaimsUtility;
-using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
-namespace Infrastructure.Repositories.ExternalRepository
+public class OtpRepository : IOtpRepository
 {
-    public class OtpRepository : IOtpRepository
+    private readonly IMemoryCache _cache;
+    private const int OtpExpirationMinutes = 2;
+
+    public OtpRepository(IMemoryCache cache)
     {
-        private readonly JWTConfiguration _configuration;
-        public OtpRepository(JWTConfiguration configuration)
+        _cache = cache;
+    }
+
+    public Task<string> GenerateOtp(string email)
+    {
+        // Generate random 6-digit OTP
+        var random = new Random();
+        var otpCode = random.Next(100000, 999999).ToString();
+
+        // Store in cache with expiration
+        var cacheEntryOptions = new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(TimeSpan.FromMinutes(OtpExpirationMinutes));
+
+        // Store both code and validation state
+        _cache.Set(email, new OtpData
         {
-            _configuration = configuration;
-            CheckJWTParamters();
+            Code = otpCode,
+            IsUsed = false
+        }, cacheEntryOptions);
+
+        return Task.FromResult(otpCode);
+    }
+
+    public Task<OtpValidationResult> ValidateOtp(string email, string code)
+    {
+        if (!_cache.TryGetValue(email, out OtpData otpData))
+        {
+            return Task.FromResult(OtpValidationResult.NotFound);
         }
 
-        private void CheckJWTParamters()
+        if (otpData.IsUsed)
         {
-            if (_configuration.Key is null || _configuration.Issuer is null
-                || _configuration.Audience is null || _configuration.LoginDays == -1)
-                throw new SettingsNotFoundException("JWT Paramters Not Found");
-        }
-        public Task<string> GenerateOTP()
-        {
-            return Task.FromResult(RandomNumberGenerator.GetHexString(6));
+            return Task.FromResult(OtpValidationResult.AlreadyUsed);
         }
 
-        public Task<string> GenerateOTPToken(string otp, string? userEmail = null, string? token = null)
+        if (!string.Equals(otpData.Code, code, StringComparison.Ordinal))
         {
-
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Key));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-            var claims = new[]
-            {
-                new Claim("validTime", _configuration.OtpMinutes.ToString()),
-                new Claim(AppUtility.Otp, otp),
-                userEmail is null? new Claim(JwtRegisteredClaimNames.Email, ""): new Claim(JwtRegisteredClaimNames.Email, userEmail),
-                token is null? new Claim(AppUtility.Token, "") : new Claim(AppUtility.Token, token),
-            }; 
-            var jwtToken = new JwtSecurityToken(_configuration.Issuer, _configuration.Audience, claims,
-                expires: DateTime.Now.AddMinutes(_configuration.OtpMinutes),
-                signingCredentials: credentials);
-
-            return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(jwtToken));
+            return Task.FromResult(OtpValidationResult.InvalidCode);
         }
 
+        // Mark as used only on successful validation
+        otpData.IsUsed = true;
+        _cache.Set(email, otpData);
+
+        return Task.FromResult(OtpValidationResult.Success);
+    }
+
+    private class OtpData
+    {
+        public string Code { get; set; }
+        public bool IsUsed { get; set; }
     }
 }
+

@@ -13,6 +13,7 @@ namespace Application.IService
         IWishlistItemsService WishlistItemsService { get; }
         ICartService CartService { get; }
         IOrderService OrderService { get; }
+        IShippingCostService ShippingCostService { get; }
 
     }
 }

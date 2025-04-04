@@ -13,7 +13,7 @@ namespace Application.Services
     {
         private readonly IAuthenticationService _authenticationService;
         private readonly IEmailService _emailService;
-        private readonly IOtpService _otpService;
+        //private readonly IOtpService _otpService;
         private readonly IExternalRepository _repository;
         private readonly IAdminDataService _service;
         private readonly IMapper _mapper;
@@ -22,7 +22,7 @@ namespace Application.Services
         {
             _authenticationService = new AuthenticationService(repository, mapper, service);
             _emailService = new EmailService(repository);
-            _otpService = new OtpService(repository);
+            //_otpService = new OtpService(repository);
             _repository = repository;
             _service = service;
             _mapper = mapper;
@@ -31,6 +31,6 @@ namespace Application.Services
 
         public IEmailService EmailService => _emailService;
 
-        public IOtpService OtpService => _otpService;
+       // public IOtpService OtpService => _otpService;
     }
 }

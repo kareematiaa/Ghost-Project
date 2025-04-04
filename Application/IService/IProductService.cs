@@ -12,7 +12,7 @@ namespace Application.IService
     {
         Task<List<ProductCardDto>> GetAllProductsAsync(int page, int pageSize);
         Task<List<ProductCardDto>> GetNewProductsAsync(int page, int pageSize);
-        Task<ProductDetailsDto> GetProductDetailsAsync(Guid productId);
+        Task<ProductDetailsDto?> GetProductDetailsAsync(Guid productId);
         Task<List<ProductCardDto>> GetProductsByCategoryAsync(Guid categoryId, int page, int pageSize);
         Task<List<ProductCardDto>> GetRandomProductsAsync(int count);
     }

@@ -14,7 +14,5 @@ namespace Application.DTOs.AuthDTOs
 
         public string PhoneNumber { get; set; } = null!;
 
-        public string DateOfBirth { get; set; } = null!;
-        public string Gender { get; set; } = null!;
     }
 }

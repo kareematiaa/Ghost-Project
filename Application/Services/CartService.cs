@@ -1,9 +1,11 @@
 ﻿using Application.DTOs;
+using Application.DTOs.AuthDTOs;
 using Application.IService;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.IRepositories.IDataRepository;
+using Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -33,23 +35,25 @@ namespace Application.Services
             return _mapper.Map<List<CartItemDto>>(cart.CartItems);
         }
 
-        public async Task AddToCartAsync(string customerId, Guid productVariantId, int quantity)
+        public async Task AddToCartAsync(string customerId, Guid productVariantId,Guid sizeId, int quantity)
         {
             _ =await _adminDataRepository.CustomerRepository.GetByIdAsync(customerId) ?? throw new NotFoundException("customer");
             _ = await _adminDataRepository.ProductVariantRepository.GetByIdAsync(productVariantId) ?? throw new NotFoundException("variant");
+            _ = await _adminDataRepository.CustomerRepository.GetSizeByIdAsync(sizeId) ?? throw new NotFoundException("size");
             var cart = await _adminDataRepository.CartRepository.GetCartByCustomerIdAsync(customerId) ?? throw new NotFoundException("cart"); ;
          
             var cartItem = new CartItem
             {
                 CartId = cart.Id,
                 ProductVariantId = productVariantId,
+                SizeId = sizeId,
                 Quantity = quantity
             };
 
             await _adminDataRepository.CartRepository.AddToCartAsync(cartItem);
         }
 
-        public async Task ChangeItemQuantityAsync(string customerId, Guid productVariantId, int quantity)
+        public async Task ChangeItemQuantityAsync(string customerId, Guid productVariantId,Guid sizeId, int quantity)
         {
             // Retrieve the customer
             var customer = await _adminDataRepository.CustomerRepository.GetByIdAsync(customerId)
@@ -77,15 +81,15 @@ namespace Application.Services
             cartItem.Quantity = quantity;
 
             // Save changes
-            await _adminDataRepository.CartRepository.UpdateCartItemAsync(cartItem);
+            await _adminDataRepository.CartRepository.UpdateCartItemQuantityAsync(customerId,productVariantId,sizeId,quantity);
         }
 
-        public async Task RemoveItemFromCartAsync(string customerId, Guid cartItemId)
+        public async Task RemoveItemFromCartAsync(string customerId, Guid productVariantId, Guid sizeId)
         {
             _ = await _adminDataRepository.CustomerRepository.GetByIdAsync(customerId) ?? throw new NotFoundException("customer");
             var cart = await _adminDataRepository.CartRepository.GetCartByCustomerIdAsync(customerId) ?? throw new NotFoundException("cart items");
          
-            await _adminDataRepository.CartRepository.RemoveFromCartAsync(cartItemId);
+            await _adminDataRepository.CartRepository.RemoveCartItemAsync(customerId,productVariantId,sizeId);
         }
 
         public async Task EmptyCartAsync(string customerId)
@@ -95,10 +99,15 @@ namespace Application.Services
             var cart = await _adminDataRepository.CartRepository.GetCartByCustomerIdAsync(customerId);
             if (cart == null)
             {
-                throw new NotFoundException("Cart not found.");
+                throw new NotFoundException("Cart");
             }
 
-            await _adminDataRepository.CartRepository.EmptyCartAsync(cart.Id);
+            await _adminDataRepository.CartRepository.EmptyCartAsync(customerId);
+        }
+
+        public async Task<ICustomer> GetUserByIdAsync(string userId)
+        {
+            return await _adminDataRepository.CustomerRepository.GetByIdAsync(userId);
         }
     }
 }

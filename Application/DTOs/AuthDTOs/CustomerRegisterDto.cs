@@ -22,12 +22,12 @@ namespace Application.DTOs.AuthDTOs
         public required string PhoneNumber { get; set; }
 
 
-        [Required]
-        public DateTime DateOfBirth { get; set; }
+        //[Required]
+        //public DateOnly DateOfBirth { get; set; }
 
 
-        [Required]
-        public bool Gender { get; set; }
+        //[Required]
+        //public bool Gender { get; set; }
 
 
         [Required]

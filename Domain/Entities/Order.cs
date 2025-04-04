@@ -17,6 +17,7 @@ namespace Domain.Entities
         public decimal? Discount { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public string PhoneNumber { get; set; } = null!;
+        public string Email { get; set; } = null!;
         public PaymentType PaymentType { get; set; }
         //public string? TransactionId { get; set; }
 

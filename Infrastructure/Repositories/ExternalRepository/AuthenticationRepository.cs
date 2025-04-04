@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using Domain.Exceptions;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
+using Application.DTOs.AuthDTOs;
 
 namespace Infrastructure.Repositories.ExternalRepository
 {
@@ -54,9 +55,11 @@ namespace Infrastructure.Repositories.ExternalRepository
             var claims = new[]
         {
             new Claim(AppUtility.Id, user.Id),
-            new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Name, user.FullName),
+            new Claim("fullName", user.FullName),
+            new Claim("email", user.Email),
+            new Claim("phoneNumber", user.PhoneNumber),
+      
+            
             new Claim(JwtRegisteredClaimNames.AuthTime,
                     _jwtConfig.LoginDays.ToString())
         }
@@ -149,7 +152,8 @@ namespace Infrastructure.Repositories.ExternalRepository
             return (token, user);
         }
 
-        public async Task<string> CustomerRegister(string fullName, string email, string phone, DateTime birthDate, bool gender, string password)
+        public async Task<object> CustomerRegister(
+                             string fullName, string email, string phone, string password)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null) throw new AlreadyExistException(email);
@@ -160,8 +164,8 @@ namespace Infrastructure.Repositories.ExternalRepository
                 Email = email,
                 PhoneNumber = phone,
                 FullName = fullName,
-                DateOfBirth = birthDate,
-                Gender = gender ? Gender.Male : Gender.FeMale,
+                //DateOfBirth = birthDate,
+              //  Gender = gender ? Gender.Male : Gender.FeMale,
             };
 
             user.UserName = user.Email;
@@ -169,18 +173,32 @@ namespace Infrastructure.Repositories.ExternalRepository
             IdentityResult res = await _userManager.CreateAsync(user);
             if (!res.Succeeded)
                 throw new IdentityException(FillError(res));
-            if (password.Length != 0)
+
+            if (!string.IsNullOrEmpty(password))
+            {
                 res = await _userManager.AddPasswordAsync(user, password);
-            if (!res.Succeeded)
-                throw new IdentityException(FillError(res));
+                if (!res.Succeeded)
+                    throw new IdentityException(FillError(res));
+            }
+
             await AddClaimms(user);
             await AddRole(user, UserRole.Customer.ToString());
 
             var jwtToken = await GenerateJwtToken(user);
-            return jwtToken;
 
-           
+            return new
+            {
+                Id = user.Id,
+                Token = jwtToken,
+                Role = UserRole.Customer.ToString(),
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+               // DateOfBirth = user.DateOfBirth,
+                //Gender = user.Gender.ToString()
+            };
         }
+
 
         public async Task ChangePassword(string userId, string oldPassword, string newPassword)
         {
@@ -190,6 +208,7 @@ namespace Infrastructure.Repositories.ExternalRepository
             if (!result.Succeeded)
                 throw new UnauthorizedException(FillError(result));
         }
+
         public async Task Remove(string id)
         {
             var user = await GetUserById(id);

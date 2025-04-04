@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Domain.Entities;
+using Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,8 +10,7 @@ namespace Domain.External
 {
     public interface IOtpRepository
     {
-        Task<string> GenerateOTP();
-        Task<string> GenerateOTPToken(string otp,
-            string? userEmail = null, string? token = null);
+        Task<string> GenerateOtp(string email);
+        Task<OtpValidationResult> ValidateOtp(string email, string code);
     }
 }

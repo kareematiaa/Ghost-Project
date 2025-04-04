@@ -19,7 +19,7 @@ namespace Infrastructure.Repositories.DataRepository
             _context = context;
         }
 
-        public async Task<ShippingCost> GetByMethodAndGovernateAsync(Guid shippingMethodId, string governate)
+        public async Task<ShippingCost?> GetByMethodAndGovernateAsync(Guid shippingMethodId, string governate)
         {
             return await _context.ShippingCosts
                 .Include(sc => sc.ShippingMethod)
@@ -27,6 +27,13 @@ namespace Infrastructure.Repositories.DataRepository
         }
 
         public async Task<IEnumerable<ShippingCost>> GetAllAsync()
+        {
+            return await _context.ShippingCosts
+                .Include(sc => sc.ShippingMethod)
+                .ToListAsync();
+        }
+
+        public async Task<List<ShippingCost>> GetAllShippingCostsAsync()
         {
             return await _context.ShippingCosts
                 .Include(sc => sc.ShippingMethod)

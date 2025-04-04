@@ -33,7 +33,6 @@ namespace Infrastructure.Repositories.DataRepository
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductColor)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductSize)
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductImages)
                 .Where(p => !p.IsDeleted);
@@ -49,7 +48,6 @@ namespace Infrastructure.Repositories.DataRepository
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductColor)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductSize)
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductImages)
                 .Where(p => p.CreatedOn >= lastMonth && !p.IsDeleted)
@@ -60,17 +58,19 @@ namespace Infrastructure.Repositories.DataRepository
             return await query.ToListAsync(); // Execute the query and return the result as a list.
         }
 
-        public async Task<Product> GetProductDetailsAsync(Guid productId)
+        public async Task<Product?> GetProductDetailsAsync(Guid productId)
         {
             return await _context.Products
+                .Where(p => p.Id == productId && !p.IsDeleted)
                 .Include(p => p.Category)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductColor)
+                    .ThenInclude(v => v.ProductColor)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductSize)
+                    .ThenInclude(v => v.AvailableSizes)
+                        .ThenInclude(s => s.Size)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductImages)
-                .FirstOrDefaultAsync(p => p.Id == productId && !p.IsDeleted);
+                    .ThenInclude(v => v.ProductImages) // Include Product Images
+                .FirstOrDefaultAsync();
         }
 
         public async Task<List<Product>> GetProductsByCategoryAsync(Guid categoryId, int page, int pageSize)
@@ -80,7 +80,6 @@ namespace Infrastructure.Repositories.DataRepository
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductColor)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductSize)
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductImages)
                 .Where(p => p.CategoryId == categoryId && !p.IsDeleted);
@@ -95,7 +94,6 @@ namespace Infrastructure.Repositories.DataRepository
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductColor)
                 .Include(p => p.ProductVariants)
-                    .ThenInclude(pv => pv.ProductSize)
                 .Include(p => p.ProductVariants)
                     .ThenInclude(pv => pv.ProductImages)
                 .Where(p => !p.IsDeleted)

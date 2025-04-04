@@ -16,6 +16,7 @@ namespace Application.Services
         private readonly IWishlistItemsService _wishlistItemsService;
         private readonly ICartService _cartService;
         private readonly IOrderService _orderService;
+        private readonly IShippingCostService _shippingCostService;
         public AdminDataService(IAdminDataRepository repository, IMapper mapper)
         {
             _productService = new ProductService(repository, mapper);
@@ -23,6 +24,7 @@ namespace Application.Services
             _wishlistItemsService = new WishlistItemsService(repository, mapper);
             _cartService = new CartService(repository, mapper);
             _orderService = new OrderService(repository, mapper);
+            _shippingCostService = new ShippingCostService(repository, mapper);
 
         }
         public IProductService ProductService => _productService;
@@ -32,5 +34,6 @@ namespace Application.Services
         public IWishlistItemsService WishlistItemsService => _wishlistItemsService;
         public ICartService CartService => _cartService;
         public IOrderService OrderService => _orderService;
+        public IShippingCostService ShippingCostService => _shippingCostService;
     }
 }

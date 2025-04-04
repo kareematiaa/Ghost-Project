@@ -24,7 +24,6 @@ namespace Infrastructure.Repositories.DataRepository
             return await _context.ProductVariants
                 .Include(pv => pv.Product)
                 .Include(pv => pv.ProductColor)
-                .Include(pv => pv.ProductSize)
                 .FirstOrDefaultAsync(pv => pv.Id == id);
         }
 
@@ -39,7 +38,6 @@ namespace Infrastructure.Repositories.DataRepository
             return await _context.ProductVariants
                 .Include(pv => pv.Product)
                 .Include(pv => pv.ProductColor)
-                .Include(pv => pv.ProductSize)
                 .Where(pv => ids.Contains(pv.Id))
                 .ToListAsync();
         }

@@ -12,7 +12,5 @@ namespace Domain.Entities
         public string City { get; set; } = null!;
         public string? UnitNumber { get; set; }
         public string? StreetNumber { get; set; }
-        public string? NearestLandMark { get; set; }
-        public string? PostalCode { get; set; }
     }
 }

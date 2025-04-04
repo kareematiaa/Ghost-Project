@@ -23,12 +23,12 @@ namespace Ghost.APIs.Controllers
 
 
         [HttpPost("AddToCart", Name = "AddToCart")]
-        public async Task<ActionResult<APIResponse<string>>> AddToCart( string customerId, Guid productVariantId,int quantity)
+        public async Task<ActionResult<APIResponse<string>>> AddToCart( string customerId, Guid productVariantId,Guid sizeId, int quantity)
         {
             var response = new APIResponse<string>();
             try
             {
-                await _adminDataService.CartService.AddToCartAsync(customerId, productVariantId,quantity);
+                await _adminDataService.CartService.AddToCartAsync(customerId, productVariantId,sizeId,quantity);
                 response.Result = "Added Succfully";
                 response.StatusCode = HttpStatusCode.OK;
                 return Ok(response);
@@ -78,12 +78,12 @@ namespace Ghost.APIs.Controllers
 
 
         [HttpPut("ChangeItemQuantity", Name = "ChangeItemQuantity")]
-        public async Task<ActionResult<APIResponse<string>>> ChangeItemQuantity(string customerId, Guid productVariantId, int quantity)
+        public async Task<ActionResult<APIResponse<string>>> ChangeItemQuantity(string customerId, Guid productVariantId, Guid sizeId, int quantity)
         {
             var response = new APIResponse<string>();
             try
             {
-                await _adminDataService.CartService.ChangeItemQuantityAsync(customerId, productVariantId, quantity);
+                await _adminDataService.CartService.ChangeItemQuantityAsync(customerId, productVariantId, sizeId, quantity);
                 response.Result = "Added Succfully";
                 response.StatusCode = HttpStatusCode.OK;
                 return Ok(response);
@@ -103,6 +103,32 @@ namespace Ghost.APIs.Controllers
             return response;
         }
 
+
+        [HttpDelete("RemoveItemFromCart", Name = "RemoveItemFromCart")]
+        public async Task<ActionResult<APIResponse<string>>> RemoveItemFromCart(string customerId, Guid productVariantId, Guid sizeId)
+        {
+            var response = new APIResponse<string>();
+            try
+            {
+                await _adminDataService.CartService.RemoveItemFromCartAsync(customerId, productVariantId, sizeId);
+                response.Result = "Removed Succfully";
+                response.StatusCode = HttpStatusCode.NoContent;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+            }
+            return response;
+        }
 
         [HttpDelete("empty")]
         public async Task<ActionResult<APIResponse<string>>> EmptyCart(string customerId)

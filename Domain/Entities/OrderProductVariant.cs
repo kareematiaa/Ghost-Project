@@ -13,9 +13,10 @@ namespace Domain.Entities
         public Guid OrderId { get; set; }
         public Guid ProductVariantId { get; set; }
         public int Quantity { get; set; }
-        public decimal Price { get; set; }
         public Order Order { get; set; } = null!;
         public ProductVariant ProductVariant { get; set; } = null!;
+        public Guid SizeId { get; set; }  // 👈 New field to store the selected size
+        public ProductSize Size { get; set; } = null!;
 
     }
 }

@@ -48,14 +48,19 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("ProductVariantId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("SizeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Quantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(1);
 
-                    b.HasKey("CartId", "ProductVariantId");
+                    b.HasKey("CartId", "ProductVariantId", "SizeId");
 
                     b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SizeId");
 
                     b.ToTable("CartItems");
                 });
@@ -96,6 +101,10 @@ namespace Infrastructure.Migrations
                     b.Property<decimal?>("Discount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Governate")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -132,27 +141,23 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.OrderProductVariant", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("SizeId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId");
+                    b.HasKey("OrderId", "ProductVariantId", "SizeId");
 
                     b.HasIndex("ProductVariantId");
+
+                    b.HasIndex("SizeId");
 
                     b.ToTable("OrderItems");
                 });
@@ -280,7 +285,7 @@ namespace Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Size")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -309,18 +314,40 @@ namespace Infrastructure.Migrations
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
-                    b.Property<Guid>("SizeId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
 
                     b.HasIndex("ColorId");
 
                     b.HasIndex("ProductId");
 
+                    b.ToTable("ProductVariants");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ProductVariantSize", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("ProductVariantId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("QuantityAvailable")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("SizeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductVariantId");
+
                     b.HasIndex("SizeId");
 
-                    b.ToTable("ProductVariants");
+                    b.ToTable("ProductVariantSize");
                 });
 
             modelBuilder.Entity("Domain.Entities.ShippingCost", b =>
@@ -605,12 +632,6 @@ namespace Infrastructure.Migrations
                 {
                     b.HasBaseType("Infrastructure.Context.Users.AppUser");
 
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
-
-                    b.Property<byte>("Gender")
-                        .HasColumnType("tinyint");
-
                     b.ToTable("Customers");
                 });
 
@@ -639,9 +660,17 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.ProductSize", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Cart");
 
                     b.Navigation("ProductVariant");
+
+                    b.Navigation("Size");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order", b =>
@@ -673,12 +702,6 @@ namespace Infrastructure.Migrations
 
                             b1.Property<string>("City")
                                 .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("NearestLandMark")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("PostalCode")
                                 .HasColumnType("nvarchar(max)");
 
                             b1.Property<string>("StreetNumber")
@@ -719,9 +742,17 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.ProductSize", "Size")
+                        .WithMany()
+                        .HasForeignKey("SizeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Order");
 
                     b.Navigation("ProductVariant");
+
+                    b.Navigation("Size");
                 });
 
             modelBuilder.Entity("Domain.Entities.PaymentMethod", b =>
@@ -771,17 +802,28 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.ProductSize", "ProductSize")
-                        .WithMany("ProductVariants")
+                    b.Navigation("Product");
+
+                    b.Navigation("ProductColor");
+                });
+
+            modelBuilder.Entity("Domain.Entities.ProductVariantSize", b =>
+                {
+                    b.HasOne("Domain.Entities.ProductVariant", "ProductVariant")
+                        .WithMany("AvailableSizes")
+                        .HasForeignKey("ProductVariantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.ProductSize", "Size")
+                        .WithMany("ProductVariantSizes")
                         .HasForeignKey("SizeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductVariant");
 
-                    b.Navigation("ProductColor");
-
-                    b.Navigation("ProductSize");
+                    b.Navigation("Size");
                 });
 
             modelBuilder.Entity("Domain.Entities.ShippingCost", b =>
@@ -897,12 +939,6 @@ namespace Infrastructure.Migrations
                                 .IsRequired()
                                 .HasColumnType("nvarchar(max)");
 
-                            b1.Property<string>("NearestLandMark")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("PostalCode")
-                                .HasColumnType("nvarchar(max)");
-
                             b1.Property<string>("StreetNumber")
                                 .HasColumnType("nvarchar(max)");
 
@@ -954,11 +990,13 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.ProductSize", b =>
                 {
-                    b.Navigation("ProductVariants");
+                    b.Navigation("ProductVariantSizes");
                 });
 
             modelBuilder.Entity("Domain.Entities.ProductVariant", b =>
                 {
+                    b.Navigation("AvailableSizes");
+
                     b.Navigation("CartItems");
 
                     b.Navigation("OrderProductVariants");

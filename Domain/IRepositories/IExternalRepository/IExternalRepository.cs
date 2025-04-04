@@ -12,7 +12,6 @@ namespace Domain.IRepositories.IExternalRepository
         IAuthenticationRepository AuthenticationRepository { get; }
         ISendingRepository MailingRepository { get; }
        // IPaymentRepository PaymentRepository { get; }
-        IOtpRepository OtpRepository { get; }
-        //IGoogleFormRepository GoogleFormRepository { get; }
+  
     }
 }

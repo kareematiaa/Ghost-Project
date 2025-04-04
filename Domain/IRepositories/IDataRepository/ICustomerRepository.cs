@@ -1,4 +1,5 @@
-﻿using Domain.Users;
+﻿using Domain.Entities;
+using Domain.Users;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,5 +11,6 @@ namespace Domain.IRepositories.IDataRepository
     public interface ICustomerRepository
     {
         Task<ICustomer?> GetByIdAsync(string customerId);
+        Task<ProductSize?> GetSizeByIdAsync(Guid Id);
     }
 }

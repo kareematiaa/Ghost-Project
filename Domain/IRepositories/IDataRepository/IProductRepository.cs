@@ -12,7 +12,7 @@ namespace Domain.IRepositories.IDataRepository
     {
         Task<List<Product>> GetAllProductsAsync(int page, int pageSize);
         Task<List<Product>> GetNewProductsAsync(int page, int pageSize);
-        Task<Product> GetProductDetailsAsync(Guid productId);
+        Task<Product?> GetProductDetailsAsync(Guid productId);
         Task<List<Product>> GetProductsByCategoryAsync(Guid categoryId, int page, int pageSize);
         Task<List<Product>> GetRandomProductsAsync(int count);
         Task<Product?> GetByIdAsync(Guid productId);

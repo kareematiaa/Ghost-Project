@@ -13,7 +13,9 @@ namespace Infrastructure.Configurations
     {
         public void Configure(EntityTypeBuilder<OrderProductVariant> builder)
         {
-            builder.HasKey(oi => oi.Id);
+            builder.Ignore(oi => oi.Id);
+
+            builder.HasKey(opv => new { opv.OrderId, opv.ProductVariantId, opv.SizeId });
 
             builder.HasOne(opv => opv.Order)
            .WithMany(o => o.OrderItems)
@@ -24,6 +26,11 @@ namespace Infrastructure.Configurations
                 .WithMany(pv => pv.OrderProductVariants)
                 .HasForeignKey(opv => opv.ProductVariantId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            builder.HasOne(opv => opv.Size)
+       .WithMany()
+       .HasForeignKey(opv => opv.SizeId)
+       .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

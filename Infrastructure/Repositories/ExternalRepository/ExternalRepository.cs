@@ -67,20 +67,6 @@ namespace Infrastructure.Repositories.ExternalRepository
             }
         }
 
-        public IOtpRepository OtpRepository
-        {
-            get
-            {
-                if (_otpRepository == null)
-                {
-
-                    JWTConfiguration loginConfiguration = new JWTConfiguration();
-
-                    _configuration.GetRequiredSection("Jwt").Bind(loginConfiguration);
-                    _otpRepository = new OtpRepository(loginConfiguration);
-                }
-                return _otpRepository;
-            }
-        }
+    
     }
 }

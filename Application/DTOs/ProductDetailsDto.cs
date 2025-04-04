@@ -13,7 +13,6 @@ namespace Application.DTOs
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public string Price { get; set; } = null!;
-        //public Guid CategoryId { get; set; }
         public bool IsInWishlist { get; set; }
         public List<ProductVariantDto> ProductVariants { get; set; } = new();
     }

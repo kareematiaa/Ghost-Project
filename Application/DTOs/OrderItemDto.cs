@@ -11,6 +11,7 @@ namespace Application.DTOs
     {
         public Guid ProductVariantId { get; set; }
         public int Quantity { get; set; }
+        public Guid SizeId { get; set; }
 
     }
 }

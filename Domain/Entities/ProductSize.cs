@@ -10,8 +10,8 @@ namespace Domain.Entities
 {
     public class ProductSize :BaseEntity
     {
-        public string Size { get; set; } = null!;
-        public ICollection<ProductVariant> ProductVariants { get; set; } = null!;
+        public string Name { get; set; } = null!;
+        public ICollection<ProductVariantSize> ProductVariantSizes { get; set; } = new List<ProductVariantSize>();
     }
 }
 

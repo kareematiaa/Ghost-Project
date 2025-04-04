@@ -27,9 +27,7 @@ namespace Infrastructure.Configurations
                 .WithMany(pc => pc.ProductVariants)
                 .HasForeignKey(pv => pv.ColorId);
 
-            builder.HasOne(pv => pv.ProductSize)
-                .WithMany(ps => ps.ProductVariants)
-                .HasForeignKey(pv => pv.SizeId);
+         
 
             builder.HasQueryFilter(p => !p.IsDeleted);
         }

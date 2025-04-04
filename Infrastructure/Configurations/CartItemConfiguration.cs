@@ -17,7 +17,7 @@ namespace Infrastructure.Configurations
 
             builder.Ignore(ci => ci.Id);
 
-            builder.HasKey(ci => new { ci.CartId, ci.ProductVariantId });
+            builder.HasKey(ci => new { ci.CartId, ci.ProductVariantId,ci.SizeId });
             builder.Property(ci => ci.Quantity).HasDefaultValue(1);
 
             builder.HasOne(ci => ci.ProductVariant)
@@ -27,6 +27,11 @@ namespace Infrastructure.Configurations
             builder.HasOne(ci => ci.Cart)
                 .WithMany(c => c.CartItems)
                 .HasForeignKey(ci => ci.CartId);
+
+            builder.HasOne(ci => ci.Size)
+       .WithMany()
+       .HasForeignKey(ci => ci.SizeId)
+       .OnDelete(DeleteBehavior.Restrict); 
         }
     }
 }

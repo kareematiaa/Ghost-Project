@@ -83,7 +83,7 @@ namespace Application.Services
                         OrderId = order.Id,
                         ProductVariantId = item.ProductVariantId,
                         Quantity = item.Quantity,
-                        Price = product.Price, // Assign price from product
+                        SizeId = item.SizeId,
                         Order = order,
                         ProductVariant = productVariant
                     });
@@ -93,7 +93,7 @@ namespace Application.Services
                 order.OrderItems = orderItems;
 
                 // Calculate SUBTOTAL (sum of all order items)
-                decimal subtotal = order.OrderItems.Sum(oi => oi.Price * oi.Quantity);
+                decimal subtotal = order.OrderItems.Sum(oi => oi.ProductVariant.Product.Price * oi.Quantity);
 
                 // Calculate TOTAL PRICE (subtotal + shipping cost)
                 order.TotalPrice = subtotal + shippingCost.Price;

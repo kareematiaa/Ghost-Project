@@ -11,7 +11,7 @@ namespace Application.IService
     {
         Task<LoginResponseDto> Login(LoginDto login);
 
-        Task<string> CustomerRegister(CustomerRegisterDto user);
+        Task<object> CustomerRegister(CustomerRegisterDto user);
 
     }
 }

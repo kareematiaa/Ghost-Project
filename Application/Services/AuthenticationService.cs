@@ -37,15 +37,20 @@ namespace Application.Services
         }
 
 
-        public async Task<string> CustomerRegister(CustomerRegisterDto user)
+        public async Task<object> CustomerRegister(CustomerRegisterDto user)
         {
-            var registerToken = await _repository.AuthenticationRepository
-             .CustomerRegister(
-             fullName: user.FullName, email: user.Email,
-             
-             phone: user.PhoneNumber, birthDate: user.DateOfBirth, gender: user.Gender, password: user.Password);
-            return registerToken!;
+            var registerResponse = await _repository.AuthenticationRepository.CustomerRegister(
+                fullName: user.FullName,
+                email: user.Email,
+                phone: user.PhoneNumber,
+                //birthDate: user.DateOfBirth,
+               //gender: user.Gender,
+                password: user.Password
+            );
+
+            return registerResponse; // Since CustomerRegister now returns an object instead of just a token
         }
+
 
         public async Task<LoginResponseDto> Login(LoginDto login)
         {
@@ -63,5 +68,7 @@ namespace Application.Services
 
             return loginResponseDto;
         }
+
+
     }
 }

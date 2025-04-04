@@ -11,6 +11,7 @@ namespace Application.DTOs
     {
         public string CustomerId { get; set; }
         public string PhoneNumber { get; set; }
+        public string Email { get; set; }
         public PaymentType PaymentType { get; set; }
         public Guid? PaymentMethodId { get; set; }
         public Guid ShippingMethodId { get; set; }

@@ -10,6 +10,6 @@ namespace Application.IService
     {
         IAuthenticationService AuthenticationService { get; }
         IEmailService EmailService { get; }
-        IOtpService OtpService { get; }
+       // IOtpService OtpService { get; }
     }
 }

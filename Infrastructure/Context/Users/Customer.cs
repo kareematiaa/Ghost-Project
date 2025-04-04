@@ -12,8 +12,8 @@ namespace Infrastructure.Context.Users
 {
     public class Customer : AppUser, ICustomer
     {
-        public DateTime DateOfBirth {  get; set; }
-        public Gender Gender {  get; set; }
+       // public DateOnly DateOfBirth {  get; set; }
+       // public Gender Gender {  get; set; }
         public ICollection<Order>? Orders { get; set; }
         public Wishlist Wishlist { get; set; } = null!;
         public Cart Cart { get; set; } = null!;
