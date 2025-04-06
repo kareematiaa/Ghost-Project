@@ -129,6 +129,51 @@ namespace Ghost.APIs.Controllers
             }
         }
 
+        [HttpPost("AdminRegister")]
+        [EnableRateLimiting("FixedWindowPolicy")]
+        public async Task<ActionResult> AdminRegister(AdminRegistrationDto model)
+        {
+            try
+            {
+                var token = await _service.AuthenticationService.AdminRegister(model);
+
+
+                return Ok(token);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (NotAllowedException ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+            catch (SettingsNotFoundException ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (AlreadyExistException ex)
+            {
+                return Conflict(ex.Message);
+            }
+            catch (IdentityException ex)
+            {
+                return Problem(ex.Message);
+            }
+            catch (PropertyException ex)
+            {
+                return Problem(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
 
         [HttpPost("generateOtp")]
         public async Task<IActionResult> GenerateOtp([FromQuery] string email, [FromQuery] string purpose = "confirmation")

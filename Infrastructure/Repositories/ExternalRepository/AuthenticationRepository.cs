@@ -152,8 +152,54 @@ namespace Infrastructure.Repositories.ExternalRepository
             return (token, user);
         }
 
-        public async Task<object> CustomerRegister(
+        public async Task<object> AdminRegister(
                              string fullName, string email, string phone, string password)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser != null) throw new AlreadyExistException(email);
+
+            var user = new Admin
+            {
+                UserName = email,
+                Email = email,
+                PhoneNumber = phone,
+                FullName = fullName,
+            
+            };
+
+            user.UserName = user.Email;
+
+            IdentityResult res = await _userManager.CreateAsync(user);
+            if (!res.Succeeded)
+                throw new IdentityException(FillError(res));
+
+            if (!string.IsNullOrEmpty(password))
+            {
+                res = await _userManager.AddPasswordAsync(user, password);
+                if (!res.Succeeded)
+                    throw new IdentityException(FillError(res));
+            }
+
+            await AddClaimms(user);
+            await AddRole(user, UserRole.Admin.ToString());
+
+            var jwtToken = await GenerateJwtToken(user);
+
+            return new
+            {
+                Id = user.Id,
+                Token = jwtToken,
+                Role = UserRole.Admin.ToString(),
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+               // DateOfBirth = user.DateOfBirth,
+                //Gender = user.Gender.ToString()
+            };
+        }
+
+        public async Task<object> CustomerRegister(
+                         string fullName, string email, string phone, string password)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null) throw new AlreadyExistException(email);
@@ -165,7 +211,7 @@ namespace Infrastructure.Repositories.ExternalRepository
                 PhoneNumber = phone,
                 FullName = fullName,
                 //DateOfBirth = birthDate,
-              //  Gender = gender ? Gender.Male : Gender.FeMale,
+                //  Gender = gender ? Gender.Male : Gender.FeMale,
             };
 
             user.UserName = user.Email;
@@ -194,11 +240,10 @@ namespace Infrastructure.Repositories.ExternalRepository
                 FullName = user.FullName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
-               // DateOfBirth = user.DateOfBirth,
+                // DateOfBirth = user.DateOfBirth,
                 //Gender = user.Gender.ToString()
             };
         }
-
 
         public async Task ChangePassword(string userId, string oldPassword, string newPassword)
         {

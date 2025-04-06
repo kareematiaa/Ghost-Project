@@ -2,6 +2,7 @@
 using Application.Extentions;
 using Application.IService;
 using Application.Services;
+using Domain.Enums;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -56,6 +57,38 @@ namespace Ghost.APIs.Controllers
             }
         }
 
+        [HttpPut("status", Name = "UpdateOrderStatus")]
+        public async Task<ActionResult<APIResponse<string>>> UpdateOrderStatus(Guid orderId, OrderStatus orderStatus)
+        {
+            var response = new APIResponse<string>();
+            try
+            {
+                var result = await _adminDataService.OrderService.UpdateOrderStatusAsync(orderId,orderStatus);
+                response.Result = "updated succfully";
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (InvalidOperationException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.BadRequest;
+                return BadRequest(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                return StatusCode(500, response);
+            }
+        }
 
         [HttpGet("GetOrderDetails/{id}", Name = "GetOrderDetails")]
         public async Task<ActionResult<APIResponse<OrderDto>>> GetOrderDetails(Guid id)
@@ -106,8 +139,90 @@ namespace Ghost.APIs.Controllers
             }
         }
 
+        [HttpGet("GetAllOrders", Name = "GetAllOrders")]
+        public async Task<ActionResult<APIResponse<List<OrderAdminDto>>>> GetAllOrders()
+        {
+            var response = new APIResponse<List<OrderAdminDto>>();
+            try
+            {
+                var orders = await _adminDataService.OrderService.GetAllOrdersAsync();
 
-    
+                response.Result = orders;
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
+            }
+        }
 
-}
+        [HttpGet("GetAllColors", Name = "GetAllColors")]
+        public async Task<ActionResult<APIResponse<List<ProductColorDto>>>> GetAllColors()
+        {
+            var response = new APIResponse<List<ProductColorDto>>();
+            try
+            {
+                var orders = await _adminDataService.OrderService.GetAllColorsAsync();
+
+                response.Result = orders;
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
+            }
+        }
+
+
+
+        [HttpGet("GetAllSizes", Name = "GetAllSizes")]
+        public async Task<ActionResult<APIResponse<List<ProductSizeDto>>>> GetAllSizes()
+        {
+            var response = new APIResponse<List<ProductSizeDto>>();
+            try
+            {
+                var orders = await _adminDataService.OrderService.GetAllSizesAsync();
+
+                response.Result = orders;
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
+            }
+        }
+    }
 }

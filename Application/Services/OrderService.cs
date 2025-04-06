@@ -146,5 +146,39 @@ namespace Application.Services
                 await _adminDataRepository.ProductVariantRepository.UpdateAsync(productVariant);
             }
         }
+
+        public async Task<List<ProductColorDto>> GetAllColorsAsync()
+        {
+            var colors = await _adminDataRepository.OrderRepository.GetAllColorsAsync();
+            return _mapper.Map<List<ProductColorDto>>(colors);
+        }
+
+        public async Task<List<ProductSizeDto>> GetAllSizesAsync()
+        {
+            var sizes = await _adminDataRepository.OrderRepository.GetAllSizesAsync();
+            return _mapper.Map<List<ProductSizeDto>>(sizes);
+        }
+
+        public async Task<List<OrderAdminDto>> GetAllOrdersAsync()
+        {
+            var orders = await _adminDataRepository.OrderRepository.GetAllOrdersAsync();
+            return _mapper.Map<List<OrderAdminDto>>(orders);
+        }
+
+        public async Task<bool> UpdateOrderStatusAsync(Guid orderId, OrderStatus orderStatus)
+        {
+            var order = await _adminDataRepository.OrderRepository.GetByIdAsync(orderId)
+                ?? throw new NotFoundException("Order not found");
+
+            // Add any business logic/validation here
+            if (order.OrderStatus == OrderStatus.Delivered)
+            {
+                throw new InvalidOperationException("Cannot change status of a delivered order");
+            }
+
+            order.OrderStatus = orderStatus;
+            await _adminDataRepository.OrderRepository.UpdateAsync(order);
+            return true;
+        }
     }
 }

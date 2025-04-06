@@ -1,8 +1,10 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.AuthDTOs;
+using Domain.Entities;
 using Domain.IRepositories.IDataRepository;
 using Domain.Users;
 using Infrastructure.Context;
 using Infrastructure.Context.Users;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -24,6 +26,13 @@ namespace Infrastructure.Repositories.DataRepository
         public async Task<ICustomer?> GetByIdAsync(string customerId)
         {
             return await _context.Customers.FirstOrDefaultAsync(c => c.Id == customerId);
+        }
+        public async Task<IReadOnlyList<ICustomer>> GetAllCustomersAsync()
+        {
+            return await _context.Users
+                .OfType<Customer>()
+                .Include(c => c.CustomerAddress)
+                .ToListAsync<ICustomer>();
         }
 
         public async Task<ProductSize?> GetSizeByIdAsync(Guid Id)

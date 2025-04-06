@@ -13,5 +13,9 @@ namespace Domain.IRepositories.IDataRepository
         Task<List<Order>> GetCustomerOrdersAsync(string customerId);
         Task<Order> CreateOrderAsync(Order order);
         Task UpdateOrderAsync(Order order);
+        Task<List<ProductColor>> GetAllColorsAsync();
+        Task<List<ProductSize>> GetAllSizesAsync();
+        Task<List<Order>> GetAllOrdersAsync();
+        Task UpdateAsync(Order order);
     }
 }

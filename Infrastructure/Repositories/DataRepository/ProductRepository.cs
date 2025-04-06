@@ -102,6 +102,54 @@ namespace Infrastructure.Repositories.DataRepository
                 .ToListAsync();
         }
 
+        public async Task<Product> AddProductAsync(Product product)
+        {
+            await _context.Products.AddAsync(product);
+            await _context.SaveChangesAsync();
+            return product;
+        }
+
+        public async Task<Product> UpdateProductAsync(Product product)
+        {
+            _context.Products.Update(product);
+            await _context.SaveChangesAsync();
+            return product;
+        }
+
+        public async Task SoftDeleteProductAsync(Guid productId)
+        {
+            var product = await _context.Products.FindAsync(productId);
+            if (product != null)
+            {
+                product.IsDeleted = true;
+                _context.Products.Update(product);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task<ProductVariant> AddProductVariantAsync(ProductVariant variant)
+        {
+            await _context.ProductVariants.AddAsync(variant);
+            await _context.SaveChangesAsync();
+            return variant;
+        }
+
+        public async Task SoftDeleteProductVariantAsync(Guid variantId)
+        {
+            var variant = await _context.ProductVariants.FindAsync(variantId);
+            if (variant != null)
+            {
+                variant.IsDeleted = true;
+                _context.ProductVariants.Update(variant);
+                await _context.SaveChangesAsync();
+            }
+        }
+
+        public async Task AddAsync(ProductImage image)
+        {
+            await _context.ProductImages.AddAsync(image);
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

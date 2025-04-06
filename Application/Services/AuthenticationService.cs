@@ -51,6 +51,17 @@ namespace Application.Services
             return registerResponse; // Since CustomerRegister now returns an object instead of just a token
         }
 
+        public async Task<object> AdminRegister(AdminRegistrationDto admin)
+        {
+            var registerResponse = await _repository.AuthenticationRepository.AdminRegister(
+                fullName: admin.FullName,
+                email: admin.Email,
+                phone: admin.PhoneNumber,
+                password: admin.Password
+            );
+
+            return registerResponse; // Since CustomerRegister now returns an object instead of just a token
+        }
 
         public async Task<LoginResponseDto> Login(LoginDto login)
         {

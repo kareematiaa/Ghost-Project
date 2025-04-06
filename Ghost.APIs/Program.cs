@@ -75,6 +75,7 @@ builder.Services.AddScoped<IOtpRepository, OtpRepository>();
 builder.Services.AddScoped<IOtpService, OtpService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddAutoMapper(typeof(MapperConfig));
+builder.Services.AddHttpContextAccessor();
 
 
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);

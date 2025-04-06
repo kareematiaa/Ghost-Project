@@ -4,6 +4,7 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Exceptions;
 using Domain.IRepositories.IDataRepository;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +17,13 @@ namespace Application.Services
     {
         private readonly IAdminDataRepository _adminDataRepository;
         private readonly IMapper _mapper;
-        public WishlistItemsService(IAdminDataRepository adminDataRepository, IMapper mapper)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        public WishlistItemsService(IAdminDataRepository adminDataRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _adminDataRepository = adminDataRepository;
             _mapper = mapper;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task AddToWishlistAsync(string customerId, Guid productId)
@@ -46,7 +50,8 @@ namespace Application.Services
             var wishlist = await _adminDataRepository.WishlistRepository.GetWishlistByCustomerIdAsync(customerId) ?? throw new NotFoundException("wishlist"); ;
         
             var wishlistItems = await _adminDataRepository.WishlistItemsRepository.GetWishlistItemsAsync(wishlist.Id) ?? throw new NotFoundException("wishlist items");
-            return _mapper.Map<List<WishlistItemDto>>(wishlistItems);
+            return _mapper.Map<List<WishlistItemDto>>(wishlistItems, opts =>
+            opts.Items["HttpContext"] = _httpContextAccessor.HttpContext);
         }
 
 

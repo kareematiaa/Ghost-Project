@@ -6,6 +6,7 @@ using Domain.Entities;
 using Domain.Exceptions;
 using Domain.IRepositories.IDataRepository;
 using Domain.Users;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,20 +20,23 @@ namespace Application.Services
     {
         private readonly IAdminDataRepository _adminDataRepository;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public CartService(IAdminDataRepository adminDataRepository, IMapper mapper)
+        public CartService(IAdminDataRepository adminDataRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor)
         {
             _adminDataRepository = adminDataRepository;
             _mapper = mapper;
+           _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<List<CartItemDto>> GetCartItemsAsync(string customerId)
         {
             _ = await _adminDataRepository.CustomerRepository.GetByIdAsync(customerId) ?? throw new NotFoundException("customer");
 
-            var cart = await _adminDataRepository.CartRepository.GetCartByCustomerIdAsync(customerId)  ?? throw new NotFoundException("cart items");
-            
-            return _mapper.Map<List<CartItemDto>>(cart.CartItems);
+            var cart = await _adminDataRepository.CartRepository.GetCartByCustomerIdAsync(customerId) ?? throw new NotFoundException("cart items");
+
+            return _mapper.Map<List<CartItemDto>>(cart.CartItems, opts =>
+            opts.Items["HttpContext"] = _httpContextAccessor.HttpContext);
         }
 
         public async Task AddToCartAsync(string customerId, Guid productVariantId,Guid sizeId, int quantity)

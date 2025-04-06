@@ -16,5 +16,11 @@ namespace Domain.IRepositories.IDataRepository
         Task<List<Product>> GetProductsByCategoryAsync(Guid categoryId, int page, int pageSize);
         Task<List<Product>> GetRandomProductsAsync(int count);
         Task<Product?> GetByIdAsync(Guid productId);
+        Task<Product> AddProductAsync(Product product);
+        Task<Product> UpdateProductAsync(Product product);
+        Task SoftDeleteProductAsync(Guid productId);
+        Task<ProductVariant> AddProductVariantAsync(ProductVariant variant);
+        Task SoftDeleteProductVariantAsync(Guid variantId);
+        Task AddAsync(ProductImage image);
     }
 }

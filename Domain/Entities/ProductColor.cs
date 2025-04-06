@@ -13,6 +13,5 @@ namespace Domain.Entities
         public string Name { get; set; } = null!;
         public string Color { get; set; } = null!;
         public ICollection<ProductVariant> ProductVariants { get; set; } = null!;
-        //public ICollection<ProductImage> ProductImages { get; set; } = null!;
     }
 }

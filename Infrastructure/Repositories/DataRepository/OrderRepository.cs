@@ -60,5 +60,30 @@ namespace Infrastructure.Repositories.DataRepository
             _context.Orders.Update(order);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<ProductColor>> GetAllColorsAsync()
+        {
+            return await _context.ProductColors.ToListAsync();
+        }
+
+        public async Task<List<ProductSize>> GetAllSizesAsync()
+        {
+            return await _context.ProductSizes.ToListAsync();
+        }
+
+        public async Task<List<Order>> GetAllOrdersAsync()
+        {
+            return await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.ProductVariant)
+                .ToListAsync();
+        }
+
+        public async Task UpdateAsync(Order order)
+        {
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -12,5 +12,5 @@ namespace Domain.IRepositories.IDataRepository
     {
         Task<ICustomer?> GetByIdAsync(string customerId);
         Task<ProductSize?> GetSizeByIdAsync(Guid Id);
-    }
+        Task<IReadOnlyList<ICustomer>> GetAllCustomersAsync();    }
 }

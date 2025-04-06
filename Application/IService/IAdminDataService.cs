@@ -14,6 +14,7 @@ namespace Application.IService
         ICartService CartService { get; }
         IOrderService OrderService { get; }
         IShippingCostService ShippingCostService { get; }
+        ICustomerService CustomerService { get; }
 
     }
 }

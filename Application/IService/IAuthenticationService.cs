@@ -13,5 +13,7 @@ namespace Application.IService
 
         Task<object> CustomerRegister(CustomerRegisterDto user);
 
+        Task<object> AdminRegister(AdminRegistrationDto admin);
+
     }
 }
