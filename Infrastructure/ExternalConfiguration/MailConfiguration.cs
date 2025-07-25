@@ -10,5 +10,7 @@
         public string ConfirmationPath { get; set; } = null!;
         public string ResetPhonePath { get; set; } = null!;
         public string RestPasswordPath { get; set; } = null!;
+        public string NewOrderPath { get; set; } = null!;
+        public string CustomerNewOrderPath { get; set; } = null!;
     }
 }

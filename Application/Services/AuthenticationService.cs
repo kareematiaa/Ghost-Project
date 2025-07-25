@@ -4,8 +4,10 @@ using AutoMapper;
 using Domain.Exceptions;
 using Domain.IRepositories.IExternalRepository;
 using Domain.Users;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -37,14 +39,14 @@ namespace Application.Services
         }
 
 
-        public async Task<object> CustomerRegister(CustomerRegisterDto user)
+        public async Task<string> CustomerRegister(CustomerRegisterDto user)
         {
             var registerResponse = await _repository.AuthenticationRepository.CustomerRegister(
                 fullName: user.FullName,
                 email: user.Email,
                 phone: user.PhoneNumber,
                 //birthDate: user.DateOfBirth,
-               //gender: user.Gender,
+                //gender: user.Gender,
                 password: user.Password
             );
 
@@ -80,6 +82,22 @@ namespace Application.Services
             return loginResponseDto;
         }
 
+        public async Task<string> GetCustomerId(string token)
+        {
+       
+            var customerId = _repository.AuthenticationRepository.GetCustomerIdFromTokenn(token);
+            if (string.IsNullOrEmpty(customerId))
+            {
+                throw new NotFoundException("Customer ID not found in the token.");
+            }
+            return customerId;
 
+        }
+
+        public async Task<bool> IsEmailExists(string email)
+        {
+            return await _repository.AuthenticationRepository.IsEmailExists(email);
+
+        }
     }
 }

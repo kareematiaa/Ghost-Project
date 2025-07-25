@@ -196,7 +196,6 @@ namespace Ghost.APIs.Controllers
         }
 
 
-
         [HttpGet("GetAllSizes", Name = "GetAllSizes")]
         public async Task<ActionResult<APIResponse<List<ProductSizeDto>>>> GetAllSizes()
         {
@@ -215,6 +214,46 @@ namespace Ghost.APIs.Controllers
                 response.ErrorMessages = new List<string> { ex.Message };
                 response.StatusCode = HttpStatusCode.NotFound;
                 return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
+            }
+        }
+
+        [HttpPost("AddColor", Name = "AddColor")]
+        public async Task<ActionResult<APIResponse<ProductColorDto>>> AddColor([FromBody] ProductColorCreateDto dto)
+        {
+            var response = new APIResponse<ProductColorDto>();
+            try
+            {
+                var created = await _adminDataService.OrderService.AddColorAsync(dto);
+                response.Result = created;
+                response.StatusCode = HttpStatusCode.Created;
+                return CreatedAtRoute("GetAllColors", null, response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.InternalServerError;
+                return StatusCode((int)HttpStatusCode.InternalServerError, response);
+            }
+        }
+
+        [HttpPost("AddSize", Name = "AddSize")]
+        public async Task<ActionResult<APIResponse<ProductSizeDto>>> AddSize([FromBody] ProductSizeCreateDto dto)
+        {
+            var response = new APIResponse<ProductSizeDto>();
+            try
+            {
+                var created = await _adminDataService.OrderService.AddSizeAsync(dto);
+                response.Result = created;
+                response.StatusCode = HttpStatusCode.Created;
+                return CreatedAtRoute("GetAllSizes", null, response);
             }
             catch (Exception ex)
             {

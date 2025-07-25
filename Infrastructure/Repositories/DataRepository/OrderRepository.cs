@@ -71,6 +71,20 @@ namespace Infrastructure.Repositories.DataRepository
             return await _context.ProductSizes.ToListAsync();
         }
 
+        public async Task<ProductColor> AddColorAsync(ProductColor color)
+        {
+            await _context.ProductColors.AddAsync(color);
+            await _context.SaveChangesAsync();
+            return color;
+        }
+
+        public async Task<ProductSize> AddSizeAsync(ProductSize size)
+        {
+            await _context.ProductSizes.AddAsync(size);
+            await _context.SaveChangesAsync();
+            return size;
+        }
+
         public async Task<List<Order>> GetAllOrdersAsync()
         {
             return await _context.Orders

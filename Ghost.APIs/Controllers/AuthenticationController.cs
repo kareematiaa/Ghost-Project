@@ -2,6 +2,7 @@
 using Application.DTOs.AuthDTOs;
 using Application.IService;
 using Application.Services;
+using Domain.Entities;
 using Domain.Enums;
 using Domain.Exceptions;
 using Microsoft.AspNetCore.Authorization;
@@ -83,16 +84,13 @@ namespace Ghost.APIs.Controllers
             try
             {
                 var token = await _service.AuthenticationService.CustomerRegister(model);
+                var customerId = await _service.AuthenticationService.GetCustomerId(token);
 
-                //Get CustomerId from token and create default closet and cart
-                //var customerId = _service.AuthenticationService.GetCustomerIdFromToken(token);
-               
-              //  await _adminDataService.WishlistService.CreateWishlistAsync(customerId);
+               await _adminDataService.CartService.CreateCart(customerId);
+               await _adminDataService.WishlistService.CreateWishlistAsync(customerId);
 
-                //await _service.PaymentService
-                //    .AddCustomer(customerId, model.Email, model.FullName, model.PhoneNumber);
 
-                return Ok(token);
+                return Ok(new { Token = token, CustomerId = customerId });
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -227,6 +225,14 @@ namespace Ghost.APIs.Controllers
                     PhoneNumber = user.PhoneNumber,
                 }
             });
+        }
+
+
+        [HttpPost("CheckExistence")]
+        public async Task<IActionResult> CheckExistence(string email )
+        {
+            bool exists = await _service.AuthenticationService.IsEmailExists(email);
+            return Ok(new { Exists = exists });
         }
     }
 }

@@ -39,5 +39,19 @@ namespace Infrastructure.Repositories.DataRepository
                 .Include(sc => sc.ShippingMethod)
                 .ToListAsync();
         }
+
+        public async Task<ShippingMethod> AddShippingMethodAsync(ShippingMethod method)
+        {
+            await _context.ShippingMethods.AddAsync(method);
+            await _context.SaveChangesAsync();
+            return method;
+        }
+
+        public async Task<ShippingCost> AddShippingCostAsync(ShippingCost cost)
+        {
+            await _context.ShippingCosts.AddAsync(cost);
+            await _context.SaveChangesAsync();
+            return cost;
+        }
     }
 }

@@ -5,6 +5,7 @@ using Domain.Entities;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.IRepositories.IDataRepository;
+using Domain.IRepositories.IExternalRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,11 +18,13 @@ namespace Application.Services
     {
         private readonly IAdminDataRepository _adminDataRepository;
         private readonly IMapper _mapper;
+        private readonly IExternalRepository _externalRepository;
 
-        public OrderService(IAdminDataRepository adminDataRepository, IMapper mapper)
+        public OrderService(IAdminDataRepository adminDataRepository, IMapper mapper,IExternalRepository externalRepository)
         {
             _adminDataRepository = adminDataRepository;
             _mapper = mapper;
+            _externalRepository = externalRepository;
         }
 
         public async Task<OrderDto> GetOrderDetailsAsync(Guid orderId)
@@ -104,7 +107,17 @@ namespace Application.Services
                 // Update product variant quantities
                 await UpdateProductVariantQuantities(orderDto.Items);
 
+                await _adminDataRepository.CartRepository.EmptyCartAsync(orderDto.CustomerId);
+
+                // Optionally, you can send a confirmation email or notification here
+
+                 await _externalRepository.MailingRepository.SendOrderToAdmin("kareem.atiaa.9@gmail.com",order.Id) ;
+                 await _externalRepository.MailingRepository.OrderConfirmationToCustomer(order.Email,order.Id) ;
+
                 return new OrderResultDto { Success = true, OrderId = order.Id };
+
+
+
             }
             catch (Exception ex)
             {
@@ -147,6 +160,8 @@ namespace Application.Services
             }
         }
 
+
+        #region Sizes and Colors
         public async Task<List<ProductColorDto>> GetAllColorsAsync()
         {
             var colors = await _adminDataRepository.OrderRepository.GetAllColorsAsync();
@@ -158,6 +173,21 @@ namespace Application.Services
             var sizes = await _adminDataRepository.OrderRepository.GetAllSizesAsync();
             return _mapper.Map<List<ProductSizeDto>>(sizes);
         }
+
+        public async Task<ProductColorDto> AddColorAsync(ProductColorCreateDto dto)
+        {
+            var color = _mapper.Map<ProductColor>(dto);
+            var saved = await _adminDataRepository.OrderRepository.AddColorAsync(color);
+            return _mapper.Map<ProductColorDto>(saved);
+        }
+
+        public async Task<ProductSizeDto> AddSizeAsync(ProductSizeCreateDto dto)
+        {
+            var size = _mapper.Map<ProductSize>(dto);
+            var saved = await _adminDataRepository.OrderRepository.AddSizeAsync(size);
+            return _mapper.Map<ProductSizeDto>(saved);
+        }
+        #endregion
 
         public async Task<List<OrderAdminDto>> GetAllOrdersAsync()
         {

@@ -19,7 +19,59 @@ namespace Ghost.APIs.Controllers
         private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
         private readonly IAdminDataService _adminDataService = adminDataService;
 
-      
+
+
+        [HttpGet("GetProductOrderVariant", Name = "GetProductOrderVariant")]
+        public async Task<ActionResult<APIResponse<ProductVariantOrderDto>>> GetProductOrderVariant(Guid variantId, Guid sizeId)
+        {
+            var response = new APIResponse<ProductVariantOrderDto>();
+            try
+            {
+                var data = await _adminDataService.ProductService.GetVariantDetailsAsync(variantId,  sizeId);
+                response.Result = data;
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+            }
+            return response;
+        }
+
+        [HttpGet("GetAllCategories", Name = "GetAllCategories")]
+        public async Task<ActionResult<APIResponse<List<CategoryDto>>>> GetAllCategories()
+        {
+            var response = new APIResponse<List<CategoryDto>>();
+            try
+            {
+                var data = await _adminDataService.ProductService.GetAllCategoriesAsync();
+                response.Result = data;
+                response.StatusCode = HttpStatusCode.OK;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+            }
+            return response;
+        }
 
         [HttpGet("GetNewProducts", Name = "GetNewProducts")]
         public async Task<ActionResult<APIResponse<List<ProductCardDto>>>> GetNewProducts(int page, int pageSize)
@@ -179,15 +231,13 @@ namespace Ghost.APIs.Controllers
             }
             return response;
         }
-
-
-        [HttpPost("CreateProductVariant", Name = "CreateProductVariant")]
-        public async Task<ActionResult<APIResponse<ProductVariantAdminDto>>> CreateProductVariant(CreateProductVariantDto dto)
+        [HttpPost("CreateProductVariants", Name = "CreateProductVariants")]
+        public async Task<ActionResult<APIResponse<List<ProductVariantAdminDto>>>> CreateProductVariants([FromBody] CreateProductVariantsDto dto)
         {
-            var response = new APIResponse<ProductVariantAdminDto>();
+            var response = new APIResponse<List<ProductVariantAdminDto>>();
             try
             {
-                var data = await _adminDataService.ProductService.CreateProductVariantAsync(dto);
+                var data = await _adminDataService.ProductService.CreateProductVariantsAsync(dto.Variants);
                 response.Result = data;
                 response.StatusCode = HttpStatusCode.Created;
                 return Ok(response);
@@ -207,14 +257,40 @@ namespace Ghost.APIs.Controllers
             return response;
         }
 
-        [HttpPost("CreateProductVariantImage", Name = "CreateProductVariantImage")]
-        public async Task<ActionResult<APIResponse<string>>> CreateProductVariantImage(ProductImageCreateDto dto)
+        //[HttpPost("CreateProductVariant", Name = "CreateProductVariant")]
+        //public async Task<ActionResult<APIResponse<ProductVariantAdminDto>>> CreateProductVariant(CreateProductVariantDto dto)
+        //{
+        //    var response = new APIResponse<ProductVariantAdminDto>();
+        //    try
+        //    {
+        //        var data = await _adminDataService.ProductService.CreateProductVariantAsync(dto);
+        //        response.Result = data;
+        //        response.StatusCode = HttpStatusCode.Created;
+        //        return Ok(response);
+        //    }
+        //    catch (NotFoundException ex)
+        //    {
+        //        response.IsSuccess = false;
+        //        response.ErrorMessages = new List<string> { ex.Message };
+        //        response.StatusCode = HttpStatusCode.NotFound;
+        //        return NotFound(response);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        response.IsSuccess = false;
+        //        response.ErrorMessages = new List<string> { ex.Message };
+        //    }
+        //    return response;
+        //}
+
+        [HttpPost("CreateProductVariantImages", Name = "CreateProductVariantImages")]
+        public async Task<ActionResult<APIResponse<List<string>>>> CreateProductVariantImages([FromBody] List<ProductImageCreateDto> dtos)
         {
-            var response = new APIResponse<string>();
+            var response = new APIResponse<List<string>>();
             try
             {
-                var data = await _adminDataService.ProductService.UploadImageAsync(dto, _env.WebRootPath, GetBaseUrl());
-                response.Result = "created";
+                var data = await _adminDataService.ProductService.UploadImagesAsync(dtos, _env.WebRootPath, GetBaseUrl());
+                response.Result = data;
                 response.StatusCode = HttpStatusCode.Created;
                 return Ok(response);
             }
@@ -232,6 +308,7 @@ namespace Ghost.APIs.Controllers
             }
             return response;
         }
+
 
         [HttpDelete("DeleteProduct", Name = "DeleteProduct")]
         public async Task<ActionResult<APIResponse<string>>> DeleteProduct(Guid productId)
@@ -267,6 +344,34 @@ namespace Ghost.APIs.Controllers
             try
             {
                 var data = await _adminDataService.ProductService.DeleteProductVariantAsync(productVariantId);
+                response.Result = "deleted";
+                response.StatusCode = HttpStatusCode.NoContent;
+                return Ok(response);
+            }
+            catch (NotFoundException ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+                response.StatusCode = HttpStatusCode.NotFound;
+                return NotFound(response);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ErrorMessages = new List<string> { ex.Message };
+            }
+            return response;
+        }
+
+
+
+        [HttpDelete("DeleteProductImage", Name = "DeleteProductImage")]
+        public async Task<ActionResult<APIResponse<string>>> DeleteProductImage(Guid productImageId)
+        {
+            var response = new APIResponse<string>();
+            try
+            {
+                var data = await _adminDataService.ProductService.DeleteProductImageAsync(productImageId);
                 response.Result = "deleted";
                 response.StatusCode = HttpStatusCode.NoContent;
                 return Ok(response);

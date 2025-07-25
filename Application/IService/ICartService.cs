@@ -17,5 +17,6 @@ namespace Application.IService
         Task RemoveItemFromCartAsync(string customerId,Guid sizeId ,Guid cartItemId);
         Task EmptyCartAsync(string customerId);
         Task<ICustomer> GetUserByIdAsync(string userId);
+        Task CreateCart(string customerId);
     }
 }

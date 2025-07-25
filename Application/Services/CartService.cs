@@ -113,5 +113,12 @@ namespace Application.Services
         {
             return await _adminDataRepository.CustomerRepository.GetByIdAsync(userId);
         }
+
+        public async Task CreateCart(string customerId)
+        {
+           await _adminDataRepository.CartRepository.CreateCartForCustomerAsync(customerId);
+        }
+        
+
     }
 }

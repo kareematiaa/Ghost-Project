@@ -13,5 +13,7 @@
         Task SendResetPassword(string user, string otp);
         Task SendResetPhone(string user, string otp);
         Task SendResetEmail(string user, string otp);
+        Task SendOrderToAdmin(string user, Guid orderId);
+        Task OrderConfirmationToCustomer(string user, Guid orderId);
     }
 }

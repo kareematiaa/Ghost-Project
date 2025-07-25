@@ -76,6 +76,18 @@ namespace Domain.Entities.Other
         {
             InitiateMail(user, otp, "Rest Phone", _configuration.ResetPhonePath);
             return Task.CompletedTask;
+        }  
+        
+        public Task SendOrderToAdmin(string user, Guid orderId)
+        {
+            InitiateMail(user, orderId.ToString(), "New Order", _configuration.NewOrderPath);
+            return Task.CompletedTask;
+        }
+
+        public Task OrderConfirmationToCustomer(string user, Guid orderId)
+        {
+            InitiateMail(user, orderId.ToString(), "New Order", _configuration.CustomerNewOrderPath);
+            return Task.CompletedTask;
         }
     }
 }

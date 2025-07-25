@@ -17,9 +17,13 @@ namespace Application.IService
         Task<List<ProductCardDto>> GetRandomProductsAsync(int count);
         Task<ProductAdminDto> CreateProductAsync(CreateProductDto productDto);
         Task<bool> DeleteProductAsync(Guid productId);
-        Task<ProductVariantAdminDto> CreateProductVariantAsync(CreateProductVariantDto variantDto);
+        Task<List<ProductVariantAdminDto>> CreateProductVariantsAsync(List<CreateProductVariantDto> variantDtos);
         Task<bool> DeleteProductVariantAsync(Guid variantId);
-        Task<string> UploadImageAsync(ProductImageCreateDto dto, string rootPath, string baseUrl);
+        Task<List<string>> UploadImagesAsync(List<ProductImageCreateDto> dtos, string rootPath, string baseUrl);
+        Task<ProductVariantOrderDto?> GetVariantDetailsAsync(Guid productVariantId, Guid sizeId);
+
+        Task<List<CategoryDto>> GetAllCategoriesAsync();
+        Task<bool> DeleteProductImageAsync(Guid imageId);
     }
 
 }

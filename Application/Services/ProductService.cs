@@ -75,45 +75,114 @@ namespace Application.Services
             return true;
         }
 
-        public async Task<ProductVariantAdminDto> CreateProductVariantAsync(CreateProductVariantDto variantDto)
+        //public async Task<ProductVariantAdminDto> CreateProductVariantAsync(CreateProductVariantDto variantDto)
+        //{
+        //    var variant = _mapper.Map<ProductVariant>(variantDto);
+        //    var createdVariant = await _repository.ProductRepository.AddProductVariantAsync(variant);
+        //    return _mapper.Map<ProductVariantAdminDto>(createdVariant);
+        //}
+
+        public async Task<List<ProductVariantAdminDto>> CreateProductVariantsAsync(List<CreateProductVariantDto> variantDtos)
         {
-            var variant = _mapper.Map<ProductVariant>(variantDto);
-            var createdVariant = await _repository.ProductRepository.AddProductVariantAsync(variant);
-            return _mapper.Map<ProductVariantAdminDto>(createdVariant);
+            var createdVariants = new List<ProductVariantAdminDto>();
+
+            foreach (var dto in variantDtos)
+            {
+                var variant = _mapper.Map<ProductVariant>(dto);
+                var created = await _repository.ProductRepository.AddProductVariantAsync(variant);
+                createdVariants.Add(_mapper.Map<ProductVariantAdminDto>(created));
+            }
+
+            return createdVariants;
         }
 
         public async Task<bool> DeleteProductVariantAsync(Guid variantId)
         {
-            var variant = await _repository.ProductRepository.GetByIdAsync(variantId) ?? throw new NotFoundException("product variant");
+            var variant = await _repository.ProductRepository.GetByIdVariantAsync(variantId) ?? throw new NotFoundException("product variant");
             await _repository.ProductRepository.SoftDeleteProductVariantAsync(variantId);
             return true;
         }
 
 
-        public async Task<string> UploadImageAsync(ProductImageCreateDto dto, string rootPath, string baseUrl)
+        public async Task<bool> DeleteProductImageAsync(Guid imageId)
         {
-            byte[] imageBytes = Convert.FromBase64String(dto.Base64Image.Split(',').Last());
-            string variantFolder = Path.Combine(rootPath, "Variants", dto.ProductVariantId.ToString());
-            Directory.CreateDirectory(variantFolder);
+            var image = await _repository.ProductRepository.GetByIdImageAsync(imageId) ?? throw new NotFoundException("product image");
+            await _repository.ProductRepository.SoftDeleteProductImageAsync(imageId);
+            return true;
+        }
 
-            string fileName = $"{Guid.NewGuid()}.png";
-            string filePath = Path.Combine(variantFolder, fileName);
+        public async Task<List<string>> UploadImagesAsync(List<ProductImageCreateDto> dtos, string rootPath, string baseUrl)
+        {
+            var imageUrls = new List<string>();
 
-            await File.WriteAllBytesAsync(filePath, imageBytes);
-
-            var imageUrl = $"{baseUrl}/Variants/{dto.ProductVariantId}/{fileName}";
-
-            var productImage = new ProductImage
+            foreach (var dto in dtos)
             {
-                Id = Guid.NewGuid(),
-                ProductVariantId = dto.ProductVariantId,
-                URL = $"Variants/{dto.ProductVariantId}/{fileName}",
-                IsDeleted = false
+                byte[] imageBytes = Convert.FromBase64String(dto.Base64Image.Split(',').Last());
+                string variantFolder = Path.Combine(rootPath, "Variants", dto.ProductVariantId.ToString());
+                Directory.CreateDirectory(variantFolder);
+
+                string fileName = $"{Guid.NewGuid()}.png";
+                string filePath = Path.Combine(variantFolder, fileName);
+
+                await File.WriteAllBytesAsync(filePath, imageBytes);
+
+                var imageUrl = $"{baseUrl}/Variants/{dto.ProductVariantId}/{fileName}";
+                imageUrls.Add(imageUrl);
+
+                var productImage = new ProductImage
+                {
+                    Id = Guid.NewGuid(),
+                    ProductVariantId = dto.ProductVariantId,
+                    URL = $"Variants/{dto.ProductVariantId}/{fileName}",
+                    IsDeleted = false
+                };
+
+                await _repository.ProductRepository.AddAsync(productImage);
+            }
+
+            return imageUrls;
+        }
+
+
+
+
+        public async Task<ProductVariantOrderDto?> GetVariantDetailsAsync(Guid productVariantId, Guid sizeId)
+        {
+            var variant = await _repository.ProductRepository.GetVariantWithDetailsAsync(productVariantId);
+
+            if (variant == null) return null;
+
+            var size = variant.AvailableSizes.FirstOrDefault(s => s.SizeId == sizeId);
+            if (size == null) return null;
+
+            return new ProductVariantOrderDto
+
+            {
+                
+                Id = variant.Id,
+                ProductName = variant.Product.Name,
+                ProductDescription = variant.Product.Description,
+                Price = variant.Product.Price,
+                ColorName = variant.ProductColor.Name,
+                SizeName = size.Size.Name,
+                Quantity = variant.Quantity,
+                ImageUrls = variant.ProductImages
+                    .Where(img => !img.IsDeleted)
+                    .Select(img => img.URL)
+                    .ToList()
             };
+        }
 
-            await _repository.ProductRepository.AddAsync(productImage);
 
-            return imageUrl;
+        public async Task<List<CategoryDto>> GetAllCategoriesAsync()
+        {
+            var categories = await _repository.ProductRepository.GetAllCategoriesAsync();
+
+            return categories.Select(c => new CategoryDto
+            {
+                Id = c.Id,
+                Name = c.Name,      
+            }).ToList();
         }
     }
 }

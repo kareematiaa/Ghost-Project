@@ -14,7 +14,7 @@ namespace Domain.IRepositories.IExternalRepository
         Task<(string, IAppUser)> Login(string email, string password);
  
         Task Remove(string id);
-        Task<object> CustomerRegister(string fullName, string email,
+        Task<string> CustomerRegister(string fullName, string email,
                 string phone, string password);
 
         Task<object> AdminRegister(
@@ -30,5 +30,9 @@ namespace Domain.IRepositories.IExternalRepository
         Task ResetEmail(string token, string userId, string newEmail);
         Task<string> ResetEmail(string userId, string newEmail);
         IEnumerable<Claim> GetClaimsFromToken(string token);
+
+        string GetCustomerIdFromTokenn(string token);
+
+        Task<bool> IsEmailExists(string email);
     }
 }

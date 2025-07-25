@@ -10,5 +10,6 @@ namespace Application.DTOs
     public class ProductImageDto
     {
         public string URL { get; set; } = null!;
+        public Guid Id { get; set; } 
     }
 }

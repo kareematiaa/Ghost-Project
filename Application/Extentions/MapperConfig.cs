@@ -180,6 +180,13 @@ namespace Application.Extentions
 
             CreateMap<ProductColor, ProductColorDto>();
             CreateMap<ProductSize, ProductSizeDto>();
+
+            CreateMap<ProductColor,ProductColorCreateDto>()
+           .ReverseMap();
+
+            CreateMap<ProductSize, ProductSizeCreateDto>()
+        .ReverseMap();
+
             CreateMap<Order, OrderAdminDto>()
                 .ForMember(dest => dest.OrderStatus, opt => opt.MapFrom(src => src.OrderStatus.ToString()))
                 .ForMember(dest => dest.PaymentType, opt => opt.MapFrom(src => src.PaymentType.ToString()))

@@ -15,6 +15,8 @@ namespace Application.IService
         Task<OrderResultDto> CreateOrderAsync(CreateOrderDto orderDto);
         Task<List<ProductColorDto>> GetAllColorsAsync();
         Task<List<ProductSizeDto>> GetAllSizesAsync();
+        Task<ProductColorDto> AddColorAsync(ProductColorCreateDto dto);
+        Task<ProductSizeDto> AddSizeAsync(ProductSizeCreateDto sizeDto);
         Task<List<OrderAdminDto>> GetAllOrdersAsync();
         Task<bool> UpdateOrderStatusAsync(Guid orderId , OrderStatus orderStatus);
     }

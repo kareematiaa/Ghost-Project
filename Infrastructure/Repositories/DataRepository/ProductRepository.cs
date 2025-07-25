@@ -26,6 +26,22 @@ namespace Infrastructure.Repositories.DataRepository
                 .FirstOrDefaultAsync(p => p.Id == productId);
         }
 
+        public async Task<ProductVariant?> GetByIdVariantAsync(Guid productVariantId)
+        {
+            return await _context.ProductVariants
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == productVariantId);
+        }
+
+
+        public async Task<ProductImage?> GetByIdImageAsync(Guid productImageId)
+        {
+            return await _context.ProductImages
+                .AsNoTracking()
+                .FirstOrDefaultAsync(p => p.Id == productImageId);
+        }
+
+
         public async Task<List<Product>> GetAllProductsAsync(int page, int pageSize)
         {
             var query = _context.Products
@@ -145,11 +161,45 @@ namespace Infrastructure.Repositories.DataRepository
             }
         }
 
+        public async Task SoftDeleteProductImageAsync(Guid imageId)
+        {
+            var image = await _context.ProductImages.FindAsync(imageId);
+            if (image != null)
+            {
+                image.IsDeleted = true;
+                _context.ProductImages.Update(image);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task AddAsync(ProductImage image)
         {
             await _context.ProductImages.AddAsync(image);
             await _context.SaveChangesAsync();
         }
+
+        public async Task<ProductVariant?> GetVariantWithDetailsAsync(Guid productVariantId)
+        {
+            return await _context.ProductVariants
+                .Include(pv => pv.Product)
+                .Include(pv => pv.ProductColor)
+                .Include(pv => pv.AvailableSizes)
+                    .ThenInclude(pvs => pvs.Size)
+                    
+                .Include(pv => pv.ProductImages)
+                .Include(o=> o.OrderProductVariants)
+                .FirstOrDefaultAsync(pv => pv.Id == productVariantId && !pv.IsDeleted);
+        }
+
+        public async Task<List<Category>> GetAllCategoriesAsync()
+        {
+            return await _context.Categories
+                .Include(c => c.Products)
+                .Where(c => c.Products == null || c.Products.Any(p => !p.IsDeleted))
+                .AsNoTracking()
+                .ToListAsync();
+        }
+
 
     }
 }

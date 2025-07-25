@@ -22,5 +22,12 @@ namespace Domain.IRepositories.IDataRepository
         Task<ProductVariant> AddProductVariantAsync(ProductVariant variant);
         Task SoftDeleteProductVariantAsync(Guid variantId);
         Task AddAsync(ProductImage image);
+        Task<ProductVariant?> GetVariantWithDetailsAsync(Guid productVariantId);
+        Task<List<Category>> GetAllCategoriesAsync();
+        Task<ProductVariant?> GetByIdVariantAsync(Guid productVariantId);
+        Task<ProductImage?> GetByIdImageAsync(Guid productImageId);
+
+        Task SoftDeleteProductImageAsync(Guid imageId);
     }
+
 }

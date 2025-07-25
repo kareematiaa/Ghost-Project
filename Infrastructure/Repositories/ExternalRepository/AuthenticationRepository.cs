@@ -73,6 +73,25 @@ namespace Infrastructure.Repositories.ExternalRepository
             return new JwtSecurityTokenHandler().WriteToken(jwtToken);
         }
 
+        public string GetCustomerIdFromTokenn(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
+            tokenHandler.ValidateToken(token.ToString(), new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = _jwtConfig.Issuer,
+                ValidAudience = _jwtConfig.Audience,
+                IssuerSigningKey = securityKey
+            }, out SecurityToken validatedToken);
+
+            var jwtToken = validatedToken as JwtSecurityToken;
+            var customerId = jwtToken.Claims.First(c => c.Type == AppUtility.Id).Value;
+            return customerId;
+        }
+
         private string FillError(IdentityResult result)
         {
             var errors = "";
@@ -198,7 +217,7 @@ namespace Infrastructure.Repositories.ExternalRepository
             };
         }
 
-        public async Task<object> CustomerRegister(
+        public async Task<string> CustomerRegister(
                          string fullName, string email, string phone, string password)
         {
             var existingUser = await _userManager.FindByEmailAsync(email);
@@ -232,17 +251,7 @@ namespace Infrastructure.Repositories.ExternalRepository
 
             var jwtToken = await GenerateJwtToken(user);
 
-            return new
-            {
-                Id = user.Id,
-                Token = jwtToken,
-                Role = UserRole.Customer.ToString(),
-                FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                // DateOfBirth = user.DateOfBirth,
-                //Gender = user.Gender.ToString()
-            };
+            return jwtToken;
         }
 
         public async Task ChangePassword(string userId, string oldPassword, string newPassword)
@@ -321,6 +330,18 @@ namespace Infrastructure.Repositories.ExternalRepository
                 throw new UnauthorizedAccessException("Token is Expired");
 
             return jwtToken.Claims;
+        }
+
+        public async Task<bool> IsEmailExists(string email)
+        {
+            if (!string.IsNullOrEmpty(email))
+            {
+                var existingUser = await _userManager.FindByEmailAsync(email);
+                if (existingUser != null)
+                    return true;
+            }
+
+            return false;
         }
     }
 }
